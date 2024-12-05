@@ -37,12 +37,12 @@ fn main() {
     // TODO: better explain this thingamagic, namely, how does it work to return a string slice
     // and revision on how string slices work. 
     // include_str!() takes a relative path from current file, similar to relative module paths, 
-    // since 'input' dir is a sibling to main.rs, we start with 'input'. note that this differs 
-    // from how the path structure for std::fs::File methods work, which resolve from CWD iirc. 
-    // (TODO check)
+    // since 'input' dir is a sibling to the parent /bin, we start with '../input'. note that this 
+    // differs from how the path structure for std::fs::File methods work, which resolve from CWD 
+    // iirc (TODO check).
     // Even though this loads the entire string into the binary and into memory (TODO check), I 
     // believe this is neglible for 14KB of text...
-    const INPUT: &'static str = include_str!("input/day1.txt");
+    const INPUT: &'static str = include_str!("../input/day_01.txt");
     
     let (mut left, mut right) = build_cols(INPUT);
 
