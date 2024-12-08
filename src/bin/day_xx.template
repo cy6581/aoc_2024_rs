@@ -1,0 +1,33 @@
+/// Commentary
+
+fn parse_input(input: &str) -> Vec<Vec<char>> {
+    // input.lines().map(|line| line.chars().collect()).collect()
+    todo!();
+}
+
+fn solve_part_one(grid: &Vec<Vec<char>>) -> u32 {
+    todo!();
+}
+
+fn solve_part_two(grid: &Vec<Vec<char>>) -> u32 {
+    todo!();
+}
+
+fn main() {
+    // see day_01 for the reason to import the text string this way
+    // const INPUT: &'static str = include_str!("../input/day_07_test.txt");
+    const INPUT: &'static str = include_str!("../input/day_07.txt");
+
+    let grid = parse_input(INPUT);
+    // println!("grid: {:?}", grid);
+
+    let part_one_answer = solve_part_one(&grid);
+
+    println!("Part one answer: {part_one_answer}");
+    assert_eq!(part_one_answer, 5177);
+
+    let part_two_answer = solve_part_two(&grid);
+
+    println!("Part two answer: {part_two_answer}");
+    assert_eq!(part_two_answer, 1686);
+}

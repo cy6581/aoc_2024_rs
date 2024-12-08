@@ -1,21 +1,30 @@
-fn parse_input(input: &str) -> Vec<Vec<char>>{
-    input.lines()
-        .map(|line| line.chars().collect())
-        .collect()
+/// Commentary
+///
+/// This became an excuse for me to practice my DFS. With the result being an over-engineered
+/// crossword word finder.
+
+fn parse_input(input: &str) -> Vec<Vec<char>> {
+    input.lines().map(|line| line.chars().collect()).collect()
 }
 
 fn solve_part_one(grid: &Vec<Vec<char>>) -> u32 {
     let mut count = 0;
     let target_s = String::from("XMAS");
     let directions: [(i32, i32); 8] = [
-        (0, 1), (0, -1), (-1, 0), (1, 0),
-        (1, 1), (1, -1), (-1, 1), (-1, -1)
+        (0, 1),
+        (0, -1),
+        (-1, 0),
+        (1, 0),
+        (1, 1),
+        (1, -1),
+        (-1, 1),
+        (-1, -1),
     ];
 
     for row in 0..grid.len() {
         for col in 0..grid[0].len() {
             for direction in directions {
-                // subtle point - technically we should implement backtracking properly, 
+                // subtle point - technically we should implement backtracking properly,
                 // but just being lazy and using a brand new string for each exploration
                 // since backtracking only needed for the initial grid cell, TODO clean
                 let mut path_s = String::with_capacity(target_s.len());
@@ -28,27 +37,32 @@ fn solve_part_one(grid: &Vec<Vec<char>>) -> u32 {
     count
 }
 
-fn dfs_match_str(grid: &Vec<Vec<char>>, nxt_dir: (i32, i32), path_s: &mut String, target_s: &str, cell: (usize, usize)) -> bool {
+fn dfs_match_str(
+    grid: &Vec<Vec<char>>,
+    nxt_dir: (i32, i32),
+    path_s: &mut String,
+    target_s: &str,
+    cell: (usize, usize),
+) -> bool {
     let (r, c) = cell;
     path_s.push(grid[r][c]); // push current char
     if !target_s.starts_with(&path_s[..]) {
-        false // no match, terminate  
+        false // no match, terminate
     } else if path_s == target_s {
         true // match found
     } else {
-        // although a little sloppy, casting to i32 will be safe since we expect 
+        // although a little sloppy, casting to i32 will be safe since we expect
         // r and c << usize::MAX, might be better to use .try_from()
         let (r, c) = (r as i32, c as i32);
-        let (dr, dc) = nxt_dir; 
-        if r + dr >= 0 && r + dr < grid.len() as i32
-            && c + dc >= 0 && c + dc < grid[0].len() as i32 {
-                let next_cell = ((r + dr) as usize, (c + dc) as usize);
-                return dfs_match_str (grid, nxt_dir, path_s, target_s, next_cell);
+        let (dr, dc) = nxt_dir;
+        if r + dr >= 0 && r + dr < grid.len() as i32 && c + dc >= 0 && c + dc < grid[0].len() as i32
+        {
+            let next_cell = ((r + dr) as usize, (c + dc) as usize);
+            return dfs_match_str(grid, nxt_dir, path_s, target_s, next_cell);
         }
         false
     }
-} 
-
+}
 
 fn solve_part_two(grid: &Vec<Vec<char>>) -> u32 {
     let mut count = 0;
@@ -66,14 +80,12 @@ fn solve_part_two(grid: &Vec<Vec<char>>) -> u32 {
                 let se = grid[row + 1][col + 1];
                 if is_pair(nw, se) && is_pair(ne, sw) {
                     count += 1;
-                } 
+                }
             }
         }
     }
     count
 }
-
-
 
 fn main() {
     // see day_01 for the reason to import the text string this way

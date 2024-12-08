@@ -1,3 +1,11 @@
+/// Commentary
+///
+/// Once again, I was overly eager to practice my DFS seeing that this was clearly could be a graph
+/// problem describing the relationships between pages and their prequisites. Before I could end up
+/// writing the Topological Sort though, I realised that there was much simpler way given the
+/// constraints of this graph.
+/// TBC
+
 /// Assumptions
 /// 1. There are no circular dependencies encoded in the rules of prereqs-to-targets (i.e. the
 /// graph is acyclic). Otherwise the list of rules is invalid and the whole problem falls apart. So
@@ -79,26 +87,20 @@ fn to_reordered_task_path(task_path: &Vec<u32>, adj_list: &HashMap<u32, Vec<u32>
 }
 
 fn solve_part_one(dep_adj_list: &HashMap<u32, Vec<u32>>, tasks: &Vec<Vec<u32>>) -> u32 {
-    tasks.iter().fold(0, |sum, task_path| {
-        if is_valid_task_path(task_path, dep_adj_list) {
-            let mid_idx = task_path.len() / 2;
-            sum + task_path[mid_idx]
-        } else {
-            sum
-        }
-    })
+    tasks
+        .iter()
+        .filter(|task_path| is_valid_task_path(task_path, dep_adj_list))
+        .map(|task_path| task_path[task_path.len() / 2])
+        .sum()
 }
 
 fn solve_part_two(dep_adj_list: &HashMap<u32, Vec<u32>>, tasks: &Vec<Vec<u32>>) -> u32 {
-    tasks.iter().fold(0, |sum, task_path| {
-        if !is_valid_task_path(task_path, dep_adj_list) {
-            let reordered = to_reordered_task_path(task_path, dep_adj_list);
-            let mid_idx = reordered.len() / 2;
-            sum + reordered[mid_idx]
-        } else {
-            sum
-        }
-    })
+    tasks
+        .iter()
+        .filter(|task_path| !is_valid_task_path(task_path, dep_adj_list))
+        .map(|task_path| to_reordered_task_path(task_path, dep_adj_list))
+        .map(|reordered| reordered[reordered.len() / 2])
+        .sum()
 }
 
 fn main() {

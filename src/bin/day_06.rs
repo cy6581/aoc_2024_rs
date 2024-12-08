@@ -1,13 +1,18 @@
-#![allow(dead_code)]
-#![allow(unused_variables)]
+/// Commentary
+///
+/// Having seen so many Grid problems, I was frustrated at writing the same code over and over
+/// again and decided to create a reusable GridExplorer, and finally get some practice with
+/// writing structs.
+///
+/// As part of an optimization to use the same grid in memory in every brute-force search, I was
+/// forced to take a ref to the grid and use dreaded lifetimes.
 
 fn parse_input(input: &str) -> Vec<Vec<char>> {
     input.lines().map(|line| line.chars().collect()).collect()
 }
 
-#[derive(Debug)]
-struct GridExplorer {
-    data: Vec<Vec<char>>,
+struct GridExplorer<'a> {
+    data: &'a mut Vec<Vec<char>>,
     /*
     Using a special notation to mark explored, 'X' means not explored, 'N', 'S', 'E', 'W',
     indicates the direction it was explored form, to help check for cycles
@@ -20,7 +25,7 @@ struct GridExplorer {
     explored_count: u32,
 }
 
-impl GridExplorer {
+impl<'a> GridExplorer<'a> {
     //
     // Getters
     //
@@ -67,7 +72,7 @@ impl GridExplorer {
         }
     }
 
-    // helper
+    // Helper
     fn incoming_direction_char(&self) -> char {
         match self.next_move {
             (0, 1) => 'E',  // E
@@ -81,7 +86,7 @@ impl GridExplorer {
     //
     // Setters
     //
-    // Returns whether there a cycle
+    // Returns whether there is a cycle
     fn go_pos(&mut self, pos: (usize, usize)) -> bool {
         self.cur_pos = pos;
         if !self.is_explored_pos(pos) {
@@ -91,12 +96,6 @@ impl GridExplorer {
         } else {
             let (r, c) = pos;
             self.explored[r][c] == self.incoming_direction_char()
-            // if self.explored[r][c] == self.incoming_direction_char() {
-            //     println!("We have a cycle! {:?}", pos);
-            //     true
-            // } else {
-            //     false
-            // }
         }
     }
 
@@ -118,8 +117,10 @@ impl GridExplorer {
     }
 }
 
-impl From<Vec<Vec<char>>> for GridExplorer {
-    fn from(data: Vec<Vec<char>>) -> GridExplorer {
+// this started as an impl of the 'From' trait but while trying to optimise I realised that it
+// only accepts owned input.
+impl<'a> GridExplorer<'a> {
+    fn from(data: &'a mut Vec<Vec<char>>) -> GridExplorer {
         // TODO, improve the initialization
         // TODO check that rows and cols fit in isize..., or the math may be unsafe
         let mut cur_pos = (0, 0);
@@ -149,7 +150,8 @@ impl From<Vec<Vec<char>>> for GridExplorer {
 }
 
 fn solve_part_one(grid: &Vec<Vec<char>>) -> u32 {
-    let mut explorer = GridExplorer::from(grid.clone());
+    let mut owned_grid = grid.clone();
+    let mut explorer = GridExplorer::from(&mut owned_grid);
     while let Some(pos) = explorer.next_pos() {
         if explorer.is_invalid_pos(pos) {
             explorer.switch_next_move();
@@ -162,22 +164,23 @@ fn solve_part_one(grid: &Vec<Vec<char>>) -> u32 {
 
 // clearly this is extremely extremely inefficient... but it works...
 // TODO, optimize
+// UPDATE 01 - using the same grid in memory for every iteration of the search, saves time
+// reallocating the memory
 fn solve_part_two(grid: &Vec<Vec<char>>) -> u32 {
     let mut count = 0;
+    let mut mutated_grid = grid.clone();
     for row in 0..grid.len() {
         for col in 0..grid[0].len() {
             if grid[row][col] == '.' {
-                let mut grid_prime = grid.clone();
-                grid_prime[row][col] = '#';
-                let mut explorer = GridExplorer::from(grid_prime);
-
+                mutated_grid[row][col] = '#'; // mutate
+                let mut explorer = GridExplorer::from(&mut mutated_grid);
                 loop {
                     if let Some(pos) = explorer.next_pos() {
                         if explorer.is_invalid_pos(pos) {
                             explorer.switch_next_move();
                         } else {
-                            let cycle = explorer.go_pos(pos);
-                            if cycle {
+                            let is_cycle = explorer.go_pos(pos);
+                            if is_cycle {
                                 count += 1;
                                 // println!("Obstructor found {}. {}", row, col);
                                 break;
@@ -187,6 +190,7 @@ fn solve_part_two(grid: &Vec<Vec<char>>) -> u32 {
                         break; // out of grid
                     }
                 }
+                mutated_grid[row][col] = '.'; // restore grid to backtrack
             }
         }
     }
