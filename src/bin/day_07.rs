@@ -1,9 +1,9 @@
-/// Commentary
+/// # Commentary
 ///
 /// Instinctively, I reached for DFS. Luckily, it didn't seem to be over-engineered for a variable
 /// number of operators because surely enough, in part 2, they asked to add another operator.
 ///
-/// Things I tried and learnt
+/// # Things I tried and learnt
 /// - Using slices is a memory-efficient way of tracking the remaining elements in the array.
 /// Really learning to appreciate the Slice API in Rust.
 ///
