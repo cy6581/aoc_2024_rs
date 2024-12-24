@@ -1,6 +1,6 @@
 /// # Commentary
 ///
-/// I was trying to reuse, as much as possible, the grid from day 06. But it didnt' work out, as I
+/// I was trying to reuse, as much as possible, the grid from day 06. But it didn't work out, as I
 /// go into more detail below.
 ///
 /// # Things I tried and learnt
